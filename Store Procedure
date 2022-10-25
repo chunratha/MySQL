@@ -1,0 +1,5 @@
+Syntax
+
+Following is the syntax of the MySQL Cursor DECLARE Statement −
+
+DECLARE cursor_name CURSOR FOR select_statement;
