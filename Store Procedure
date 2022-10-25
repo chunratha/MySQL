@@ -1,5 +1,71 @@
-Syntax
+1- Syntax
 
-Following is the syntax of the MySQL Cursor DECLARE Statement −
+  Following is the syntax of the MySQL Cursor DECLARE Statement −
 
-DECLARE cursor_name CURSOR FOR select_statement;
+  DECLARE cursor_name CURSOR FOR select_statement;
+2- Example
+
+  - Assume we have created a table with name tutorials in MySQL database using CREATE statement as shown below −
+
+      CREATE TABLE tutorials (
+         ID INT PRIMARY KEY,
+         TITLE VARCHAR(100),
+         AUTHOR VARCHAR(40),
+         DATE VARCHAR(40)
+      );
+  - Now, we will insert 5 records in tutorials table using INSERT statements −
+
+        insert into tutorials values(1, 'Java', 'Krishna', '2019-09-01');
+        insert into tutorials values(2, 'JFreeCharts', 'Satish', '2019-05-01');
+        insert into tutorials values(3, 'JavaSprings', 'Amit', '2019-05-01');
+        insert into tutorials values(4, 'Android', 'Ram', '2019-03-01');
+        insert into tutorials values(5, 'Cassandra', 'Pruthvi', '2019-04-06');
+  - Let us create another table to back up the data −
+
+      CREATE TABLE backup (
+         ID INT,
+         TITLE VARCHAR(100),
+         AUTHOR VARCHAR(40),
+         DATE VARCHAR(40)
+      );
+  - Following procedure backups the contents of the tutorials table to the backup table using cursors −
+
+          DELIMITER //
+          CREATE PROCEDURE ExampleProc()
+             BEGIN
+                DECLARE done INT DEFAULT 0;
+                DECLARE tutorialID INTEGER;
+                DECLARE tutorialTitle, tutorialAuthor, tutorialDate VARCHAR(20);
+                DECLARE cur CURSOR FOR SELECT * FROM tutorials;
+                DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
+                OPEN cur;
+                label: LOOP
+                FETCH cur INTO tutorialID, tutorialTitle, tutorialAuthor, tutorialDate;
+                INSERT INTO backup VALUES(tutorialID, tutorialTitle, tutorialAuthor, tutorialDate);
+                IF done = 1 THEN LEAVE label;
+                END IF;
+                END LOOP;
+                CLOSE cur;
+             END//
+          DELIMITER ;
+  - You can call the above procedure as shown below −
+
+        mysql> CALL ExampleProc;
+        
+        
+  - If you verify the contents of the backup table you can see the inserted records as shown below −
+
+      mysql> select * from backup;
+      +------+-------------+---------+------------+
+      | ID   | TITLE       | AUTHOR  | DATE       |
+      +------+-------------+---------+------------+
+      | 1    | Java        | Krishna | 2019-09-01 |
+      | 2    | JFreeCharts | Satish  | 2019-05-01 |
+      | 3    | JavaSprings | Amit    | 2019-05-01 |
+      | 4    | Android     | Ram     | 2019-03-01 |
+      | 5    | Cassandra   | Pruthvi | 2019-04-06 |
+      +------+-------------+---------+------------+
+      5 rows in set (0.08 sec)
+      
+   Reference:https://www.tutorialspoint.com/mysql/mysql_cursor_declare_statement.htm
+   
